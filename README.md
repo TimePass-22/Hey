@@ -1,2 +1,531 @@
-# Hey
-....
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>For You</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f5f2eb;
+            --paper: #fdfbf7;
+            --text-main: #2b2623;
+            --text-muted: #6e645e;
+            --accent: #785a4a;
+            --border: #e3dad0;
+            --highlight: #f2ece4;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 16px;
+            background-color: var(--bg);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            color: var(--text-main);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            position: relative;
+        }
+
+        .envelope-container {
+            max-width: 640px;
+            width: 100%;
+            background: var(--paper);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 44px 36px;
+            box-shadow: 0 16px 40px rgba(43, 38, 35, 0.05), 0 2px 6px rgba(43, 38, 35, 0.03);
+            position: relative;
+        }
+
+        /* Subtle Audio Toggle */
+        .audio-toggle {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .audio-toggle:hover {
+            background: var(--highlight);
+            color: var(--text-main);
+        }
+
+        .audio-toggle.visible {
+            display: inline-flex;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header .subtitle {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .header h1 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 2.2rem;
+            font-weight: 500;
+            color: var(--accent);
+            line-height: 1.2;
+        }
+
+        .preview-text {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 24px;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 24px;
+            background: var(--accent);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            background: #63493c;
+            transform: translateY(-1px);
+        }
+
+        .action-btn.secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--border);
+        }
+
+        .action-btn.secondary:hover {
+            background: var(--highlight);
+        }
+
+        .open-trigger {
+            width: 100%;
+        }
+
+        /* PAGE SYSTEM */
+        .pages-wrapper {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .pages-wrapper.active {
+            display: block;
+        }
+
+        .page-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 28px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .page {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .letter-body p {
+            font-size: 1rem;
+            font-weight: 350;
+            color: var(--text-main);
+        }
+
+        .letter-body p strong {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .focus-quote {
+            background: var(--highlight);
+            border-left: 3px solid var(--accent);
+            padding: 16px 20px;
+            border-radius: 0 10px 10px 0;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.25rem;
+            font-style: italic;
+            color: #40342e;
+            line-height: 1.5;
+        }
+
+        /* POEM STYLES */
+        .poem-container {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.22rem;
+            line-height: 1.85;
+            color: #352b26;
+            padding: 10px 8px;
+        }
+
+        .poem-stanza {
+            margin-bottom: 24px;
+        }
+
+        .poem-stanza:last-child {
+            margin-bottom: 0;
+        }
+
+        .poem-line {
+            display: block;
+        }
+
+        /* NAVIGATION BAR */
+        .page-nav {
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 1px dashed var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .signature-area {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .signature-area .closing {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.3rem;
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        .signature-area .note {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        @media (max-width: 480px) {
+            .envelope-container {
+                padding: 32px 20px;
+            }
+            .header h1 {
+                font-size: 1.85rem;
+            }
+            .poem-container {
+                font-size: 1.12rem;
+                line-height: 1.75;
+            }
+            .page-nav {
+                flex-direction: column-reverse;
+                gap: 16px;
+                align-items: stretch;
+            }
+            .page-nav .action-btn {
+                width: 100%;
+            }
+            .signature-area {
+                text-align: center;
+            }
+            .audio-toggle {
+                position: static;
+                margin: 0 auto 16px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HTML5 AUDIO TAG -->
+    <!-- Replace 'your-audio-file.mp3' with your actual audio track URL or local file path -->
+    <audio id="bgAudio" loop preload="auto">
+        <source src="The night we met.m4a" type="audio/mpeg" />
+    </audio>
+
+    <main class="envelope-container" role="article">
+        
+        <button class="audio-toggle" id="audioToggle" aria-label="Toggle background audio">
+            <span id="audioIcon">♪</span>
+            <span id="audioLabel">Music: Off</span>
+        </button>
+
+        <header class="header">
+            <div class="subtitle">A quiet note</div>
+            <h1 id="mainTitle">For whenever you're willing to read this</h1>
+        </header>
+
+        <p class="preview-text" id="previewNote">
+            No pressure to answer, explain, or fix anything. This is just an honest apology I owe you.
+        </p>
+
+        <button class="action-btn open-trigger" id="openBtn" aria-expanded="false">
+            <span>Open letter</span>
+            <span aria-hidden="true">&darr;</span>
+        </button>
+
+        <!-- MULTI-PAGE CONTAINER -->
+        <div class="pages-wrapper" id="pagesWrapper">
+            
+            <div class="page-indicator" id="pageIndicator" aria-live="polite">
+                Part 1 of 2
+            </div>
+
+            <!-- PAGE 1: THE APOLOGY NOTE -->
+            <section class="page active letter-body" id="page1" aria-label="Page 1: The letter">
+                <p>
+                    I am not writing this to argue your decision to block me, nor to rush you into breaking the quiet you asked for. You had every reason to step away, and I want to genuinely apologize for what I did.
+                </p>
+
+                <div class="focus-quote">
+                    "You needed me to hear you, and instead, I prioritized defending myself."
+                </div>
+
+                <p>
+                    When you told me I wasn't listening and that I was judging you, you were reaching out for understanding. Instead of holding space for your feelings, I got defensive, convinced myself I was doing nothing wrong, and proved your point entirely. I hurt you, and brushing it under the rug afterward didn't erase that hurt.
+                </p>
+
+                <p>
+                    Right on the heels of that vulnerability, bringing up a new friend was completely thoughtless. I felt the energy shift between us in that moment, and instead of stopping, checking in on you, and assuring you that you matter, I stayed wrapped up in myself. I made you feel replaceable at the exact moment you needed to feel valued.
+                </p>
+
+                <p>
+                    I need you to know this clearly: <strong>nobody replaces you</strong>. Your place in my life isn't something that can just be filled by someone else, and it breaks my heart that my carelessness made it look that way.
+                </p>
+
+                <div class="page-nav">
+                    <div class="signature-area">
+                        <div class="closing"> - Hitansh</div>
+                        <div class="note">Take all the time you need.</div>
+                    </div>
+                    <button class="action-btn" id="nextPageBtn">
+                        <span>Read the poem</span>
+                        <span aria-hidden="true">&rarr;</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- PAGE 2: THE POEM -->
+            <section class="page" id="page2" aria-label="Page 2: The poem">
+                <div class="poem-container">
+                    <div class="poem-stanza">
+                        <span class="poem-line">I don't know what happened that night,</span>
+                        <span class="poem-line">Or what made you walk away,</span>
+                        <span class="poem-line">I keep thinking through our last conversations,</span>
+                        <span class="poem-line">Wondering what I did or what I failed to say.</span>
+                    </div>
+
+                    <div class="poem-stanza">
+                        <span class="poem-line">Maybe I hurt you without knowing,</span>
+                        <span class="poem-line">Maybe my words came out all wrong,</span>
+                        <span class="poem-line">Maybe I wasn't listening</span>
+                        <span class="poem-line">When you needed me to all along.</span>
+                    </div>
+
+                    <div class="poem-stanza">
+                        <span class="poem-line">I know I've made mistakes before,</span>
+                        <span class="poem-line">I've judged when I should've understood,</span>
+                        <span class="poem-line">I've said things I wish I could take back,</span>
+                        <span class="poem-line">And I know saying sorry doesn't make everything good.</span>
+                    </div>
+
+                    <div class="poem-stanza">
+                        <span class="poem-line">And if it was because I told you</span>
+                        <span class="poem-line">About someone new I met,</span>
+                        <span class="poem-line">Please don't think for even a second</span>
+                        <span class="poem-line">That I've forgotten what we have.</span>
+                    </div>
+
+                    <div class="poem-stanza">
+                        <span class="poem-line">A new person can enter my life,</span>
+                        <span class="poem-line">But that doesn't erase someone who's been there,</span>
+                        <span class="poem-line">Because some friendships become memories,</span>
+                        <span class="poem-line">While some become a part of who you are.</span>
+                    </div>
+
+                    <div class="poem-stanza">
+                        <span class="poem-line">You were never just "another friend,"</span>
+                        <span class="poem-line">And you'll never be replaceable to me.</span>
+                        <span class="poem-line">No matter how many people I meet,</span>
+                        <span class="poem-line">Nobody can become you or take your place.</span>
+                    </div>
+
+                    <div class="poem-stanza">
+                        <span class="poem-line">I don't know if you're angry, hurt,</span>
+                        <span class="poem-line">Or simply needed to disappear for a while,</span>
+                        <span class="poem-line">And I won't force you to explain yourself</span>
+                        <span class="poem-line">If you aren't ready to reconcile.</span>
+                    </div>
+
+                    <div class="poem-stanza">
+                        <span class="poem-line">I just hope someday you'll understand</span>
+                        <span class="poem-line">That hurting you was never my intention.</span>
+                        <span class="poem-line">If I made you feel unwanted or replaced,</span>
+                        <span class="poem-line">I'm truly sorry for that misconception.</span>
+                    </div>
+
+                    <div class="poem-stanza">
+                        <span class="poem-line">So wherever you are, whatever you're feeling,</span>
+                        <span class="poem-line">I hope you're okay and taking care of yourself.</span>
+                        <span class="poem-line">And if someday you feel ready to talk,</span>
+                        <span class="poem-line">I'll listen—this time, without trying to defend myself.</span>
+                    </div>
+
+                    <div class="poem-stanza">
+                        <span class="poem-line">Because losing a friendship that means this much</span>
+                        <span class="poem-line">Isn't something I can simply ignore.</span>
+                        <span class="poem-line">I don't know what tomorrow brings,</span>
+                        <span class="poem-line">But I still hope we find our way back to the friendship we had before.</span>
+                    </div>
+
+                    <div class="poem-stanza">
+                        <span class="poem-line">If something I said had hurt your heart,</span>
+                        <span class="poem-line">I'm sorry I couldn't see,</span>
+                        <span class="poem-line">I may have failed to understand,</span>
+                        <span class="poem-line">But you were never less to me.</span>
+                    </div>
+
+                    <div class="poem-stanza">
+                        <span class="poem-line">I won't force you to stay or speak,</span>
+                        <span class="poem-line">I'll give you the space you need—</span>
+                        <span class="poem-line">Just know that if I hurt you,</span>
+                        <span class="poem-line">I'm sorry, genuinely.</span>
+                    </div>
+                </div>
+
+                <div class="page-nav">
+                    <button class="action-btn secondary" id="prevPageBtn">
+                        <span aria-hidden="true">&larr;</span>
+                        <span>Back to letter</span>
+                    </button>
+                    <div class="signature-area">
+                        <div class="closing">— [Your Name]</div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        (function() {
+            const openBtn = document.getElementById('openBtn');
+            const previewNote = document.getElementById('previewNote');
+            const pagesWrapper = document.getElementById('pagesWrapper');
+            const pageIndicator = document.getElementById('pageIndicator');
+            const page1 = document.getElementById('page1');
+            const page2 = document.getElementById('page2');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const mainTitle = document.getElementById('mainTitle');
+            
+            const audio = document.getElementById('bgAudio');
+            const audioToggle = document.getElementById('audioToggle');
+            const audioLabel = document.getElementById('audioLabel');
+
+            // Open the letter & trigger audio playback
+            openBtn.addEventListener('click', () => {
+                openBtn.style.display = 'none';
+                previewNote.style.display = 'none';
+                pagesWrapper.classList.add('active');
+                audioToggle.classList.add('visible');
+
+                // Play audio softly on reveal
+                audio.volume = 0.4;
+                audio.play().then(() => {
+                    audioLabel.textContent = 'Music: On';
+                }).catch(() => {
+                    // Handled gracefully if browser policy blocks autoplay
+                    audioLabel.textContent = 'Music: Off';
+                });
+            });
+
+            // Toggle Audio Manually
+            audioToggle.addEventListener('click', () => {
+                if (audio.paused) {
+                    audio.play();
+                    audioLabel.textContent = 'Music: On';
+                } else {
+                    audio.pause();
+                    audioLabel.textContent = 'Music: Off';
+                }
+            });
+
+            // Switch to Page 2 (Poem)
+            nextPageBtn.addEventListener('click', () => {
+                page1.classList.remove('active');
+                page2.classList.add('active');
+                pageIndicator.textContent = 'Part 2 of 2';
+                mainTitle.textContent = 'A few words I wrote';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Switch back to Page 1 (Letter)
+            prevPageBtn.addEventListener('click', () => {
+                page2.classList.remove('active');
+                page1.classList.add('active');
+                pageIndicator.textContent = 'Part 1 of 2';
+                mainTitle.textContent = "For whenever you're willing to read this";
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        })();
+    </script>
+</body>
+</html>
